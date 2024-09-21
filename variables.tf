@@ -17,7 +17,6 @@ variable "gke_num_nodes" {
   description = "number of gke nodes"
 }
 
-
 variable "node_pool_machine_type" {
   default = "e2-micro"
 }
