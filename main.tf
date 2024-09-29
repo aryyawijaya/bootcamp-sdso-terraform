@@ -9,13 +9,6 @@ resource "google_service_account" "default" {
   account_id   = "service-account-id"
   display_name = "Service Account"
 }
-resource "google_project_iam_binding" "gke_secret_access" {
-  project = var.project_id
-  role    = "roles/secretmanager.secretAccessor"
-  members = [
-    "serviceAccount:${google_service_account.default.email}"
-  ]
-}
 
 # VPC
 resource "google_compute_network" "vpc" {
