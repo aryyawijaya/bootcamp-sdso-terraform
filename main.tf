@@ -38,11 +38,6 @@ resource "google_container_cluster" "primary" {
 
   network = google_compute_network.vpc.name
 
-  # Enable Secret Manager add-on
-  secret_manager_config {
-    enabled = true
-  }
-
   # Enable Workload Identity
   workload_identity_config {
     workload_pool = "${var.project_id}.svc.id.goog"
