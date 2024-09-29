@@ -12,7 +12,9 @@ resource "google_service_account" "default" {
 resource "google_project_iam_binding" "gke_secret_access" {
   project = var.project_id
   role    = "roles/secretmanager.secretAccessor"
-  member  = "serviceAccount:${google_service_account.default.email}"
+  members = [
+    "serviceAccount:${google_service_account.default.email}"
+  ]
 }
 
 # VPC
