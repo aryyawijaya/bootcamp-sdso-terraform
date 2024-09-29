@@ -74,3 +74,14 @@ resource "google_container_node_pool" "primary_nodes" {
     }
   }
 }
+
+# PostgreSQL Database
+resource "google_sql_database_instance" "main" {
+  name             = "bootcamp-sdso-postgresql"
+  database_version = "POSTGRES_15"
+  region           = "us-central1"
+
+  settings {
+    tier = "db-f1-micro"
+  }
+}
