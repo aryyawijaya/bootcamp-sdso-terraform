@@ -9,10 +9,12 @@ resource "google_service_account" "default" {
   account_id   = "service-account-id"
   display_name = "Service Account"
 }
-resource "google_project_iam_member" "secret_manager_access" {
+resource "google_project_iam_binding" "gke_secret_access" {
   project = var.project_id
   role    = "roles/secretmanager.secretAccessor"
-  member  = "serviceAccount:${google_service_account.default.email}"
+  members = [
+    "serviceAccount:${google_service_account.default.email}"
+  ]
 }
 
 # VPC
@@ -58,7 +60,8 @@ resource "google_container_node_pool" "primary_nodes" {
     # Google recommends custom service accounts that have cloud-platform scope and permissions granted via IAM Roles.
     service_account = google_service_account.default.email
     oauth_scopes = [
-      "https://www.googleapis.com/auth/cloud-platform"
+      "https://www.googleapis.com/auth/cloud-platform",
+      "https://www.googleapis.com/auth/devstorage.read_only"
     ]
 
     labels = {
