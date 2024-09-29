@@ -9,6 +9,11 @@ resource "google_service_account" "default" {
   account_id   = "service-account-id"
   display_name = "Service Account"
 }
+resource "google_project_iam_member" "secret_manager_access" {
+  project = var.project_id
+  role    = "roles/secretmanager.secretAccessor"
+  member  = "serviceAccount:${google_service_account.default.email}"
+}
 
 # VPC
 resource "google_compute_network" "vpc" {
@@ -32,6 +37,16 @@ resource "google_container_cluster" "primary" {
   initial_node_count       = 1
 
   network = google_compute_network.vpc.name
+
+  # Enable Secret Manager add-on
+  secret_manager_config {
+    enabled = true
+  }
+
+  # Enable Workload Identity
+  workload_identity_config {
+    workload_pool = "${var.project_id}.svc.id.goog"
+  }
 }
 
 # Separately Managed Node Pool
@@ -60,6 +75,11 @@ resource "google_container_node_pool" "primary_nodes" {
     tags         = ["gke-node", "${var.project_id}-gke"]
     metadata = {
       disable-legacy-endpoints = "true"
+    }
+
+    # Enable Workload Identity
+    workload_metadata_config {
+      mode = "GKE_METADATA"
     }
   }
 }
