@@ -100,6 +100,8 @@ resource "google_sql_database_instance" "main" {
     }
   }
 
+  deletion_protection = false
+
   # Assign a private IP to this instance
   # private_ip_address = google_compute_subnetwork.subnet.name
 }
