@@ -101,5 +101,5 @@ resource "google_sql_database_instance" "main" {
   }
 
   # Assign a private IP to this instance
-  private_ip_address = google_compute_subnetwork.subnet.name
+  # private_ip_address = google_compute_subnetwork.subnet.name
 }
