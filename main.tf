@@ -10,9 +10,17 @@ resource "google_service_account" "default" {
   display_name = "Service Account"
 }
 
-# VPC
+# VPC Network
 resource "google_compute_network" "vpc" {
   name = "bootcamp-sdso"
+  auto_create_subnetworks = false  # Disable auto creation of subnets
+}
+# Subnet in the VPC
+resource "google_compute_subnetwork" "subnet" {
+  name          = "bootcamp-sdso-subnet"
+  ip_cidr_range = "10.0.0.0/16"
+  region        = var.region
+  network       = google_compute_network.vpc.name
 }
 
 # GKE Cluster
@@ -32,6 +40,7 @@ resource "google_container_cluster" "primary" {
   initial_node_count       = 1
 
   network = google_compute_network.vpc.name
+  subnetwork = google_compute_subnetwork.subnet.name
 
   # Enable Workload Identity
   workload_identity_config {
@@ -78,10 +87,19 @@ resource "google_container_node_pool" "primary_nodes" {
 # PostgreSQL Database
 resource "google_sql_database_instance" "main" {
   name             = "bootcamp-sdso-postgresql"
-  database_version = "POSTGRES_15"
-  region           = "us-central1"
+  database_version = "POSTGRES_16"
+  region           = var.region
 
   settings {
     tier = "db-f1-micro"
+
+    # Enable Private IP and assign to the VPC and subnet
+    ip_configuration {
+      ipv4_enabled = false  # Disables public IP
+      private_network = google_compute_network.vpc.id  # Connect to VPC
+    }
   }
+
+  # Assign a private IP to this instance
+  # private_ip_address = google_compute_subnetwork.subnet.name
 }
